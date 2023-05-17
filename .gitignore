@@ -1,0 +1,11 @@
+*~
+/.project
+/nbproject/private/
+.*DS_Store
+*/#*
+xhprof/*
+composer.phar
+/vendor/
+.DS_Store
+._*
+.idea/*
