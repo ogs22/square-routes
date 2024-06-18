@@ -25,7 +25,7 @@ function locate(long, lat, x, y) {
             "directions_options": {"units": "miles"}
         };
 
-    let url = 'http://localhost:8002/locate?json=' + JSON.stringify(query);
+    let url = VHServer+'/locate?json=' + JSON.stringify(query);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -39,23 +39,6 @@ function locate(long, lat, x, y) {
     };
     xhttp.open("GET", url, false);
     xhttp.send();
-}
-
-function tilesFromPolyline(polyline) {
-    let squaresseen = [];
-    let points = plinedecode(polyline);
-    //console.log(pointstoGPX(points));
-    let visits = 0;
-    for (let i = 0; i < points.length; i++) {
-        //x is long
-        let x = long2tile(points[i][1], 14);
-        let y = lat2tile(points[i][0], 14);
-
-        squaresseen[x+"::"+y] = [x, y];
-    }
-    //console.log(squaresseen);
-    console.log("next polyline\n\n");
-    return squaresseen;
 }
 
 function getCrossoverPoints(polyline) {
@@ -148,7 +131,7 @@ function plinedecode(str, precision) {
 
 
 function pointstoGPX(points){
-    let gpxstring ="   <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+    let gpxstring ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "   <gpx creator=\"StravaGPX\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
         "    <metadata>\n" +
         "     <name>sunday</name>\n" +
@@ -171,4 +154,100 @@ function pointstoGPX(points){
         '    </trk>\n' +
         '   </gpx>';
     return gpxstring;
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+function buildURLopto(data) {
+    let type = "optimized_route";
+    let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    for (let i = 0; i < data.length; i++) {
+        locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
+    }
+    locations.locations[data.length++] = {"lat": data[0][0].edges[0].correlated_lat, "lon": data[0][0].edges[0].correlated_lon}
+    return VHServer+'/'+type+'?json=' + JSON.stringify(locations);
+}
+
+function buildURLstandard(data) {
+    let type = "route";
+    let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    for (let i = 0; i < data.length; i++) {
+        locations.locations[i] = {"lat": data[i][1], "lon":data[i][0] };
+    }
+    return VHServer+'/route?json=' + JSON.stringify(locations);
+}
+
+function initApp() {
+    //for each square in sqr of sqrs
+    // find lat and longtiude
+    // use locate() to find closest rela point using valhalla locate
+    //add something in to start centrally? or top/bottom/left/right
+    for (let x = 0; x < gridsize; x++) {
+        for (let y = 0; y < gridsize; y++) {
+            let thislong = tile2long(startx + x + offset, zoom);
+            let thislat = tile2lat(starty + y + offset, zoom);
+            locate(thislong, thislat, startx + x, starty + y);
+        }
+    }
+    // build a optimized route URL query
+    // then query VH and put reply in data var (erk rename)
+    let url = buildURLopto(data); //using data var built in locate()
+
+    data = []; //unset data
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            data = JSON.parse(xhttp.responseText);
+        }
+    };
+    xhttp.open("GET", url, false);
+    xhttp.send();
+
+    //console.log(data);
+    //loop through each part of journey and record the points before an after crossing a square edge
+    let legs = data.trip.legs;
+    let cop = [];
+    let crossings = [];
+    for (let j = 0; j < legs.length; j++) {
+        cop = getCrossoverPoints(legs[j].shape);
+        for (let k = 0; k < cop.length; k++) {
+            crossings[crossings.length++] = cop[k];
+        }
+    }
+
+    // build a URL for a stadard roiute between all the crossing points
+    // if you do an opto it will reroute and miss squares!
+    let newurl = buildURLstandard(crossings);
+    console.log(newurl);
+
+    newdata = [];
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            newdata = JSON.parse(xhttp.responseText);
+        }
+    };
+    xhttp.open("GET", newurl, false);
+    xhttp.send();
+
+    //get all the points from the reuslt and build a gpx file
+    let points = [];
+    let newlegs = newdata.trip.legs;
+    let ss = [];
+    for (let j = 0; j < newlegs.length; j++) {
+        let pline = plinedecode(newlegs[j].shape);
+        points = points.concat(pline);
+    }
+
+    let gpxstring = pointstoGPX(points);
+    //weird fake download thing...
+    download("example.gpx", gpxstring);
 }
