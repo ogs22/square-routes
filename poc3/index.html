@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="tile.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css">
+
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.js"></script>
+    <meta charset="UTF-8">
+    <title>Squars</title>
+</head>
+<body>
+<div id="map_id" style="width:100%;height:500px;"></div>
+<textarea id="gpx" style="width:100%;height:500px;"></textarea>
+<script>
+    let gridsize = 8;
+    let offset = 0.5;
+    let zoom = 14;
+    let startx = 8213;
+    let starty = 5412;
+    let coords = [];
+    let data = [];
+    for (let x = 0; x < gridsize; x++) {
+        for (let y = 0; y < gridsize; y++) {
+            let thislong = tile2long(startx + x + offset, zoom);
+            let thislat = tile2lat(starty + y + offset, zoom);
+            locate(thislong, thislat, startx + x, starty + y);
+        }
+    }
+    //console.log(data);
+
+
+    let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    for (let i = 0; i < data.length; i++) {
+        locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
+
+    }
+
+    let url = 'http://localhost:8002/optimized_route?json=' + JSON.stringify(locations);
+    console.log(url);
+
+    data = [];
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            data = JSON.parse(xhttp.responseText);
+        }
+    };
+    xhttp.open("GET", url, false);
+    xhttp.send();
+
+    console.log(data);
+    let legs = data.trip.legs;
+    let cop =[];
+    let crossings = [];
+    let startpoint = [0,0];
+    for (let j = 0; j < legs.length; j++) {
+        //ss[j] = tilesFromPolyline(legs[j].shape);
+        cop = getCrossoverPoints(legs[j].shape);
+        for (let k= 0 ; k< cop.length;k++) {
+            crossings[crossings.length++] = cop[k];
+        }
+    }
+    //console.log(crossings);
+
+    let newlocations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    for (let i = 0; i < crossings.length; i++) {
+        newlocations.locations[i] = {"lat": crossings[i][1], "lon":crossings[i][0] };
+    }
+
+    let newurl = 'http://localhost:8002/route?json=' + JSON.stringify(newlocations);
+    console.log(newurl);
+
+    newdata = [];
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            newdata = JSON.parse(xhttp.responseText);
+        }
+    };
+    xhttp.open("GET", newurl, false);
+    xhttp.send();
+
+    let points = [];
+    let newlegs = newdata.trip.legs;
+    let ss = [];
+    for (let j = 0; j < newlegs.length; j++) {
+        let pline = plinedecode(newlegs[j].shape);
+        // console.log(pline);
+        // console.log(j);
+        points = points.concat(pline);
+    }
+
+    let gpxstring = pointstoGPX(points);
+    //console.log(gpxstring);
+    document.getElementById("gpx").innerHTML = gpxstring;
+</script>
+
+
+</body>
+</html>
