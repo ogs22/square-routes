@@ -190,8 +190,6 @@ function initApp() {
     // find lat and longtiude
     // use locate() to find closest rela point using valhalla locate
     //add something in to start centrally? or top/bottom/left/right
-    let gridsizex = gridsize;
-    let gridsizey = gridsize;
     let xinc = 1;
     let yinc = 1;
     let comsignx = "<";
@@ -200,18 +198,18 @@ function initApp() {
         //no change needed
     };
     if (StartCorner=="tr"){
-        gridsizex = -gridsize
+        gridsizex = -gridsizex
         xinc = -1
         comsignx = ">"
     };
     if (StartCorner=="bl"){
-        gridsizey = -gridsize
+        gridsizey = -gridsizey
         yinc = -1
         comsigny = ">"
     };
     if (StartCorner=="br"){
-        gridsizex = -gridsize
-        gridsizey = -gridsize
+        gridsizex = -gridsizex
+        gridsizey = -gridsizey
         xinc = -1
         yinc = -1
         comsignx = ">"
