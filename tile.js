@@ -190,13 +190,51 @@ function initApp() {
     // find lat and longtiude
     // use locate() to find closest rela point using valhalla locate
     //add something in to start centrally? or top/bottom/left/right
-    for (let x = 0; x < gridsize; x++) {
-        for (let y = 0; y < gridsize; y++) {
+    let gridsizex = gridsize;
+    let gridsizey = gridsize;
+    let xinc = 1;
+    let yinc = 1;
+    let comsignx = "<";
+    let comsigny = "<";
+    if (StartCorner=="tl"){
+        //no change needed
+    };
+    if (StartCorner=="tr"){
+        gridsizex = -gridsize
+        xinc = -1
+        comsignx = ">"
+    };
+    if (StartCorner=="bl"){
+        gridsizey = -gridsize
+        yinc = -1
+        comsigny = ">"
+    };
+    if (StartCorner=="br"){
+        gridsizex = -gridsize
+        gridsizey = -gridsize
+        xinc = -1
+        yinc = -1
+        comsignx = ">"
+        comsigny = ">"
+    };
+    for (let x = 0; compare(x,gridsizex,comsignx); x = x + xinc) {
+        for (let y = 0; compare(y,gridsizey,comsigny); y = y + yinc) {
+            console.log(startx+x+offset)
+            console.log(starty+y+offset)
             let thislong = tile2long(startx + x + offset, zoom);
             let thislat = tile2lat(starty + y + offset, zoom);
             locate(thislong, thislat, startx + x, starty + y);
         }
     }
+    function compare(loopvar,thevariable,comsign,) {
+        if (comsign == "<"){
+          return loopvar<thevariable;
+        }
+        if (comsign == ">"){
+          return loopvar>thevariable;
+        }
+      }
+ 
     // build a optimized route URL query
     // then query VH and put reply in data var (erk rename)
     let url = buildURLopto(data); //using data var built in locate()
