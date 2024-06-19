@@ -25,7 +25,7 @@ function locate(long, lat, x, y) {
             "directions_options": {"units": "miles"}
         };
 
-    let url = VHServer+'/locate?json=' + JSON.stringify(query);
+    let url = VHServer + '/locate?json=' + JSON.stringify(query);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -44,8 +44,8 @@ function locate(long, lat, x, y) {
 function getCrossoverPoints(polyline) {
     let points = plinedecode(polyline);
     let last = "0::0";
-    let before = [0,0];
-    let after = [0,0]
+    let before = [0, 0];
+    let after = [0, 0]
     let num = 0;
     let crossings = [];
     for (let i = 0; i < points.length; i++) {
@@ -54,13 +54,13 @@ function getCrossoverPoints(polyline) {
         let y = lat2tile(points[i][0], 14);
         if (last == "0::0") {
             //setup the first before point as the initial start....
-            last = x+"::"+y;
-            before = [points[i][1], points[i][0],x,y];
+            last = x + "::" + y;
+            before = [points[i][1], points[i][0], x, y];
         }
-        if (last != x+"::"+y) {
-            last = x+"::"+y; //set this as last seen square
+        if (last != x + "::" + y) {
+            last = x + "::" + y; //set this as last seen square
             //record the point we crossed
-            after = [points[i][1], points[i][0],x,y];
+            after = [points[i][1], points[i][0], x, y];
             crossings[num] = before;
             num++;
             crossings[num] = after;
@@ -69,7 +69,7 @@ function getCrossoverPoints(polyline) {
             console.log(before);
             console.log(after);
         }
-        before = [points[i][1], points[i][0],x,y];
+        before = [points[i][1], points[i][0], x, y];
         // console.log(points[i][1]+" "+points[i][0]);
         // console.log(x+"::"+ y);
     }
@@ -130,8 +130,8 @@ function plinedecode(str, precision) {
 }
 
 
-function pointstoGPX(points){
-    let gpxstring ="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+function pointstoGPX(points) {
+    let gpxstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "   <gpx creator=\"StravaGPX\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
         "    <metadata>\n" +
         "     <name>sunday</name>\n" +
@@ -144,8 +144,8 @@ function pointstoGPX(points){
         "     <name>test ride</name>\n" +
         "     <type>Ride</type>\n" +
         "     <trkseg>";
-    for (let k=0; k < points.length;k++){
-        gpxstring += '   <trkpt lat="'+ points[k][0]+'" lon="'+ points[k][1]+'">\n' +
+    for (let k = 0; k < points.length; k++) {
+        gpxstring += '   <trkpt lat="' + points[k][0] + '" lon="' + points[k][1] + '">\n' +
             // '    <ele>15.530000000000001</ele>\n' +
             '   </trkpt>'
     }
@@ -172,17 +172,20 @@ function buildURLopto(data) {
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
     }
-    locations.locations[data.length++] = {"lat": data[0][0].edges[0].correlated_lat, "lon": data[0][0].edges[0].correlated_lon}
-    return VHServer+'/'+type+'?json=' + JSON.stringify(locations);
+    locations.locations[data.length++] = {
+        "lat": data[0][0].edges[0].correlated_lat,
+        "lon": data[0][0].edges[0].correlated_lon
+    }
+    return VHServer + '/' + type + '?json=' + JSON.stringify(locations);
 }
 
 function buildURLstandard(data) {
     let type = "route";
     let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
     for (let i = 0; i < data.length; i++) {
-        locations.locations[i] = {"lat": data[i][1], "lon":data[i][0] };
+        locations.locations[i] = {"lat": data[i][1], "lon": data[i][0]};
     }
-    return VHServer+'/route?json=' + JSON.stringify(locations);
+    return VHServer + '/route?json=' + JSON.stringify(locations);
 }
 
 function initApp() {
@@ -194,45 +197,50 @@ function initApp() {
     let yinc = 1;
     let comsignx = "<";
     let comsigny = "<";
-    if (StartCorner=="tl"){
+    if (StartCorner == "tl") {
         //no change needed
-    };
-    if (StartCorner=="tr"){
+    }
+    ;
+    if (StartCorner == "tr") {
         gridsizex = -gridsizex
         xinc = -1
         comsignx = ">"
-    };
-    if (StartCorner=="bl"){
+    }
+    ;
+    if (StartCorner == "bl") {
         gridsizey = -gridsizey
         yinc = -1
         comsigny = ">"
-    };
-    if (StartCorner=="br"){
+    }
+    ;
+    if (StartCorner == "br") {
         gridsizex = -gridsizex
         gridsizey = -gridsizey
         xinc = -1
         yinc = -1
         comsignx = ">"
         comsigny = ">"
-    };
-    for (let x = 0; compare(x,gridsizex,comsignx); x = x + xinc) {
-        for (let y = 0; compare(y,gridsizey,comsigny); y = y + yinc) {
-            console.log(startx+x+offset)
-            console.log(starty+y+offset)
+    }
+    ;
+    for (let x = 0; compare(x, gridsizex, comsignx); x = x + xinc) {
+        for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
+            console.log(startx + x + offset)
+            console.log(starty + y + offset)
             let thislong = tile2long(startx + x + offset, zoom);
             let thislat = tile2lat(starty + y + offset, zoom);
             locate(thislong, thislat, startx + x, starty + y);
         }
     }
-    function compare(loopvar,thevariable,comsign,) {
-        if (comsign == "<"){
-          return loopvar<thevariable;
+
+    function compare(loopvar, thevariable, comsign,) {
+        if (comsign == "<") {
+            return loopvar < thevariable;
         }
-        if (comsign == ">"){
-          return loopvar>thevariable;
+        if (comsign == ">") {
+            return loopvar > thevariable;
         }
-      }
- 
+    }
+
     // build a optimized route URL query
     // then query VH and put reply in data var (erk rename)
     let url = buildURLopto(data); //using data var built in locate()

@@ -7,27 +7,27 @@
     <title>Squars</title>
 </head>
 <body>
-    <form>
-        <label for="StartCorner">Choose starting corner</label><br>
-        <select name="StartCorner" id="StartCorner">
-            <option value="tl">Top Left</option>
-            <option value="tr">Top Right</option>
-            <option value="bl">Bottom Left</option>
-            <option value="br">Bottom right</option>
-          </select><br>
-        <label for="startx">Choose starting X value</label><br>
-        <input type="text" id="startx"><br>
-        <label for="starty">Choose starting Y value</label><br>
-        <input type="text" id="starty"><br>
-        <label for="gridsizex">Choose grid width</label><br>
-        <input type="text" id="gridsizex"><br>
-        <label for="gridsizey">Choose grid height</label><br>
-        <input type="text" id="gridsizey"><br>
-        <input type="submit" id="sub"></input>
-    </form>
+<form>
+    <label for="StartCorner">Choose starting corner</label><br>
+    <select name="StartCorner" id="StartCorner">
+        <option value="tl">Top Left</option>
+        <option value="tr">Top Right</option>
+        <option value="bl">Bottom Left</option>
+        <option value="br">Bottom right</option>
+    </select><br>
+    <label for="startx">Choose starting X value</label><br>
+    <input type="text" id="startx" value="8223"><br>
+    <label for="starty">Choose starting Y value</label><br>
+    <input type="text" id="starty" value="5409"><br>
+    <label for="gridsizex">Choose grid width</label><br>
+    <input type="text" id="gridsizex" value="8"><br>
+    <label for="gridsizey">Choose grid height</label><br>
+    <input type="text" id="gridsizey" value="8"><br>
+    <input type="submit" id="sub"></input>
+</form>
 
 <script>
-    //setup variables
+    //setup default variables
     let gridsize = 10;// 8x8 squares
     let offset = 0.5; // find initial points at 0.5/centre of square
     let zoom = 14;// square size
@@ -36,18 +36,16 @@
     let data = [];
     let VHServer = "http://localhost:8002";
     let StartCorner = "tl";
-    
-    
-    const SCorner = document.querySelector("#StartCorner");
-    const xStart = document.querySelector("#startx");
-    const yStart = document.querySelector("#starty");
-    const xGrid = document.querySelector("#gridsizex");
-    const yGrid = document.querySelector("#gridsizey");
+
     const button = document.querySelector("#sub");
 
-    button.addEventListener("click", updateButton);
-
-    function updateButton() {
+    button.addEventListener("click", function (event) {
+        const SCorner = document.querySelector("#StartCorner");
+        const xStart = document.querySelector("#startx");
+        const yStart = document.querySelector("#starty");
+        const xGrid = document.querySelector("#gridsizex");
+        const yGrid = document.querySelector("#gridsizey");
+        data = [];
         event.preventDefault();
         StartCorner = SCorner.value
         console.log(StartCorner)
@@ -60,7 +58,7 @@
         gridsizey = Number(yGrid.value)
         console.log(gridsizey)
         initApp();
-}
+    });
 
 </script>
 
