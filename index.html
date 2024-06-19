@@ -7,7 +7,24 @@
     <title>Squars</title>
 </head>
 <body>
-<div id="map_id" style="width:100%;height:500px;">File downloading...</div>
+    <form>
+        <label for="StartCorner">Choose starting corner</label><br>
+        <select name="StartCorner" id="StartCorner">
+            <option value="tl">Top Left</option>
+            <option value="tr">Top Right</option>
+            <option value="bl">Bottom Left</option>
+            <option value="br">Bottom right</option>
+          </select><br>
+        <label for="startx">Choose starting X value</label><br>
+        <input type="text" id="startx"><br>
+        <label for="starty">Choose starting Y value</label><br>
+        <input type="text" id="starty"><br>
+        <label for="gridsizex">Choose grid width</label><br>
+        <input type="text" id="gridsizex"><br>
+        <label for="gridsizey">Choose grid height</label><br>
+        <input type="text" id="gridsizey"><br>
+        <input type="submit" id="sub"></input>
+    </form>
 
 <script>
     //setup variables
@@ -19,7 +36,31 @@
     let data = [];
     let VHServer = "http://localhost:8002";
     let StartCorner = "tl";
-    initApp();
+    
+    
+    const SCorner = document.querySelector("#StartCorner");
+    const xStart = document.querySelector("#startx");
+    const yStart = document.querySelector("#starty");
+    const xGrid = document.querySelector("#gridsizex");
+    const yGrid = document.querySelector("#gridsizey");
+    const button = document.querySelector("#sub");
+
+    button.addEventListener("click", updateButton);
+
+    function updateButton() {
+        event.preventDefault();
+        StartCorner = SCorner.value
+        console.log(StartCorner)
+        startx = Number(xStart.value)
+        console.log(startx)
+        starty = Number(yStart.value)
+        console.log(starty)
+        gridsizex = Number(xGrid.value)
+        console.log(gridsizex)
+        gridsizey = Number(yGrid.value)
+        console.log(gridsizey)
+        initApp();
+}
 
 </script>
 
