@@ -28,7 +28,8 @@
 
 <script>
     //setup default variables
-    let gridsize = 10;// 8x8 squares
+    let gridsizex = 10;// 8x8 squares
+    let gridsizey = 10;// 8x8 squares
     let offset = 0.5; // find initial points at 0.5/centre of square
     let zoom = 14;// square size
     let startx = 8223;
@@ -40,23 +41,18 @@
     const button = document.querySelector("#sub");
 
     button.addEventListener("click", function (event) {
+        event.preventDefault();
         const SCorner = document.querySelector("#StartCorner");
         const xStart = document.querySelector("#startx");
         const yStart = document.querySelector("#starty");
         const xGrid = document.querySelector("#gridsizex");
         const yGrid = document.querySelector("#gridsizey");
         data = [];
-        event.preventDefault();
         StartCorner = SCorner.value
-        console.log(StartCorner)
         startx = Number(xStart.value)
-        console.log(startx)
         starty = Number(yStart.value)
-        console.log(starty)
         gridsizex = Number(xGrid.value)
-        console.log(gridsizex)
         gridsizey = Number(yGrid.value)
-        console.log(gridsizey)
         initApp();
     });
 

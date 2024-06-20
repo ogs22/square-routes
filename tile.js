@@ -65,9 +65,9 @@ function getCrossoverPoints(polyline) {
             num++;
             crossings[num] = after;
             num++;
-            console.log("Crossover point");
-            console.log(before);
-            console.log(after);
+            // console.log("Crossover point");
+            // console.log(before);
+            // console.log(after);
         }
         before = [points[i][1], points[i][0], x, y];
         // console.log(points[i][1]+" "+points[i][0]);
@@ -200,19 +200,16 @@ function initApp() {
     if (StartCorner == "tl") {
         //no change needed
     }
-    ;
     if (StartCorner == "tr") {
         gridsizex = -gridsizex
         xinc = -1
         comsignx = ">"
     }
-    ;
     if (StartCorner == "bl") {
         gridsizey = -gridsizey
         yinc = -1
         comsigny = ">"
     }
-    ;
     if (StartCorner == "br") {
         gridsizex = -gridsizex
         gridsizey = -gridsizey
@@ -221,7 +218,6 @@ function initApp() {
         comsignx = ">"
         comsigny = ">"
     }
-    ;
     for (let x = 0; compare(x, gridsizex, comsignx); x = x + xinc) {
         for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
             console.log(startx + x + offset)
