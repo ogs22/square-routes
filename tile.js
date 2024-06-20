@@ -134,19 +134,18 @@ function pointstoGPX(points) {
     let gpxstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "   <gpx creator=\"StravaGPX\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
         "    <metadata>\n" +
-        "     <name>sunday</name>\n" +
+        "     <name>"+gpxtitle+"</name>\n" +
         "     <author>\n" +
         "      <name>O Smith</name>\n" +
         "      <link href=\"https://www.strava.com/athletes/609144\"/>\n" +
         "     </author>\n" +
         "    </metadata>\n" +
         "    <trk>\n" +
-        "     <name>test ride</name>\n" +
-        "     <type>Ride</type>\n" +
+        "     <name>"+gpxtitle+"</name>\n" +
+        "     <type>cycling</type>\n" +
         "     <trkseg>";
     for (let k = 0; k < points.length; k++) {
         gpxstring += '   <trkpt lat="' + points[k][0] + '" lon="' + points[k][1] + '">\n' +
-            // '    <ele>15.530000000000001</ele>\n' +
             '   </trkpt>'
     }
 
@@ -294,5 +293,5 @@ function initApp() {
 
     let gpxstring = pointstoGPX(points);
     //weird fake download thing...
-    download("example.gpx", gpxstring);
+    download(gpxtitle+".gpx", gpxstring);
 }

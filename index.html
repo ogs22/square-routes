@@ -30,6 +30,7 @@
     <input type="text" id="gridsizex" value="8">
     <label for="gridsizey">Choose grid height</label>
     <input type="text" id="gridsizey" value="8">
+    <label for="sub"></label>
     <input type="submit" id="sub">
 </form>
 
@@ -45,6 +46,7 @@
     let VHServer = "http://localhost:8002";
     let StartCorner = "tl";
     let bikeType = "cross";//road cross or mtb
+    let gpxtitle = "Test Ride";
 
     const button = document.querySelector("#sub");
 
@@ -62,6 +64,7 @@
             starty = Number(yStart.value)
             gridsizex = Number(xGrid.value)
             gridsizey = Number(yGrid.value)
+            gpxtitle = "Squares "+bikeType+" "+startx+","+starty+" "+gridsizex+"x"+gridsizey;
             initApp();
         });
 
