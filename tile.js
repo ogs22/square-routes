@@ -65,16 +65,9 @@ function getCrossoverPoints(polyline) {
             num++;
             crossings[num] = after;
             num++;
-            // console.log("Crossover point");
-            // console.log(before);
-            // console.log(after);
         }
         before = [points[i][1], points[i][0], x, y];
-        // console.log(points[i][1]+" "+points[i][0]);
-        // console.log(x+"::"+ y);
     }
-    //console.log(crossings);
-    console.log("next polyline\n\n");
     return crossings;
 }
 
@@ -134,14 +127,14 @@ function pointstoGPX(points) {
     let gpxstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "   <gpx creator=\"StravaGPX\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
         "    <metadata>\n" +
-        "     <name>"+gpxtitle+"</name>\n" +
+        "     <name>" + gpxtitle + "</name>\n" +
         "     <author>\n" +
         "      <name>O Smith</name>\n" +
         "      <link href=\"https://www.strava.com/athletes/609144\"/>\n" +
         "     </author>\n" +
         "    </metadata>\n" +
         "    <trk>\n" +
-        "     <name>"+gpxtitle+"</name>\n" +
+        "     <name>" + gpxtitle + "</name>\n" +
         "     <type>cycling</type>\n" +
         "     <trkseg>";
     for (let k = 0; k < points.length; k++) {
@@ -167,7 +160,12 @@ function download(filename, text) {
 
 function buildURLopto(data) {
     let type = "optimized_route";
-    let locations = {"locations": [], "costing": "bicycle","costing_options": {"bicycle": {"bicycle_type": bikeType}}, "directions_options": {"units": "miles"}};
+    let locations = {
+        "locations": [],
+        "costing": "bicycle",
+        "costing_options": {"bicycle": {"bicycle_type": bikeType}},
+        "directions_options": {"units": "miles"}
+    };
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
     }
@@ -190,6 +188,15 @@ function buildURLstandard(data) {
         locations.locations[i] = {"lat": data[i][1], "lon": data[i][0]};
     }
     return VHServer + '/route?json=' + JSON.stringify(locations);
+}
+
+function compare(loopvar, thevariable, comsign,) {
+    if (comsign == "<") {
+        return loopvar < thevariable;
+    }
+    if (comsign == ">") {
+        return loopvar > thevariable;
+    }
 }
 
 function initApp() {
@@ -224,20 +231,9 @@ function initApp() {
     }
     for (let x = 0; compare(x, gridsizex, comsignx); x = x + xinc) {
         for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
-            console.log(startx + x + offset)
-            console.log(starty + y + offset)
             let thislong = tile2long(startx + x + offset, zoom);
             let thislat = tile2lat(starty + y + offset, zoom);
             locate(thislong, thislat, startx + x, starty + y);
-        }
-    }
-
-    function compare(loopvar, thevariable, comsign,) {
-        if (comsign == "<") {
-            return loopvar < thevariable;
-        }
-        if (comsign == ">") {
-            return loopvar > thevariable;
         }
     }
 
@@ -245,11 +241,11 @@ function initApp() {
     // then query VH and put reply in data var (erk rename)
     let url = buildURLopto(data); //using data var built in locate()
 
-    data = []; //unset data
+    let optodata = []; //unset data
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            data = JSON.parse(xhttp.responseText);
+            optodata = JSON.parse(xhttp.responseText);
         }
     };
     xhttp.open("GET", url, false);
@@ -257,7 +253,7 @@ function initApp() {
 
     //console.log(data);
     //loop through each part of journey and record the points before an after crossing a square edge
-    let legs = data.trip.legs;
+    let legs = optodata.trip.legs;
     let cop = [];
     let crossings = [];
     for (let j = 0; j < legs.length; j++) {
@@ -272,7 +268,7 @@ function initApp() {
     let newurl = buildURLstandard(crossings);
     console.log(newurl);
 
-    newdata = [];
+    let newdata = [];
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -293,5 +289,5 @@ function initApp() {
 
     let gpxstring = pointstoGPX(points);
     //weird fake download thing...
-    download(gpxtitle+".gpx", gpxstring);
+    download(gpxtitle + ".gpx", gpxstring);
 }
