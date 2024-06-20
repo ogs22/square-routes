@@ -167,7 +167,7 @@ function download(filename, text) {
 
 function buildURLopto(data) {
     let type = "optimized_route";
-    let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    let locations = {"locations": [], "costing": "bicycle","costing_options": {"bicycle": {"bicycle_type": bikeType}}, "directions_options": {"units": "miles"}};
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
     }
