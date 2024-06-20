@@ -3,27 +3,34 @@
 
 <head>
     <script src="tile.js"></script>
+    <link crossorigin="anonymous" media="all" rel="stylesheet" href="main.css" />
     <meta charset="UTF-8">
     <title>Squars</title>
 </head>
 <body>
 <form>
-    <label for="StartCorner">Choose starting corner</label><br>
+    <label for="StartCorner">Choose starting corner</label>
     <select name="StartCorner" id="StartCorner">
         <option value="tl">Top Left</option>
         <option value="tr">Top Right</option>
         <option value="bl">Bottom Left</option>
         <option value="br">Bottom right</option>
-    </select><br>
-    <label for="startx">Choose starting X value</label><br>
-    <input type="text" id="startx" value="8223"><br>
-    <label for="starty">Choose starting Y value</label><br>
-    <input type="text" id="starty" value="5409"><br>
-    <label for="gridsizex">Choose grid width</label><br>
-    <input type="text" id="gridsizex" value="8"><br>
-    <label for="gridsizey">Choose grid height</label><br>
-    <input type="text" id="gridsizey" value="8"><br>
-    <input type="submit" id="sub"></input>
+    </select>
+    <label for="bikeType">Bike type</label>
+    <select name="bikeType" id="bikeType">
+        <option value="road">Road bike</option>
+        <option value="cross">Cross/Gravel bike</option>
+        <option  value="mtb">Mountain bike</option>
+    </select>
+    <label for="startx">Choose starting X value</label>
+    <input type="text" id="startx" value="8223">
+    <label for="starty">Choose starting Y value</label>
+    <input type="text" id="starty" value="5409">
+    <label for="gridsizex">Choose grid width</label>
+    <input type="text" id="gridsizex" value="8">
+    <label for="gridsizey">Choose grid height</label>
+    <input type="text" id="gridsizey" value="8">
+    <input type="submit" id="sub">
 </form>
 
 <script>
@@ -37,24 +44,26 @@
     let data = [];
     let VHServer = "http://localhost:8002";
     let StartCorner = "tl";
+    let bikeType = "cross";//road cross or mtb
 
     const button = document.querySelector("#sub");
 
-    button.addEventListener("click", function (event) {
-        event.preventDefault();
-        const SCorner = document.querySelector("#StartCorner");
-        const xStart = document.querySelector("#startx");
-        const yStart = document.querySelector("#starty");
-        const xGrid = document.querySelector("#gridsizex");
-        const yGrid = document.querySelector("#gridsizey");
-        data = [];
-        StartCorner = SCorner.value
-        startx = Number(xStart.value)
-        starty = Number(yStart.value)
-        gridsizex = Number(xGrid.value)
-        gridsizey = Number(yGrid.value)
-        initApp();
-    });
+    button.addEventListener("click",
+        function (event) {
+            event.preventDefault();
+            const xStart = document.querySelector("#startx");
+            const yStart = document.querySelector("#starty");
+            const xGrid = document.querySelector("#gridsizex");
+            const yGrid = document.querySelector("#gridsizey");
+            data = [];
+            StartCorner = document.querySelector("#StartCorner").value;
+            bikeType = document.querySelector("#bikeType").value;
+            startx = Number(xStart.value)
+            starty = Number(yStart.value)
+            gridsizex = Number(xGrid.value)
+            gridsizey = Number(yGrid.value)
+            initApp();
+        });
 
 </script>
 

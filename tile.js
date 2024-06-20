@@ -21,7 +21,7 @@ function locate(long, lat, x, y) {
             "verbose": false,
             "locations": [{"lat": lat, "lon": long}],
             "costing": "bicycle",
-            "costing_options": {"bicycle": {"bicycle_type": "road"}},
+            "costing_options": {"bicycle": {"bicycle_type": bikeType}},
             "directions_options": {"units": "miles"}
         };
 
@@ -181,7 +181,12 @@ function buildURLopto(data) {
 
 function buildURLstandard(data) {
     let type = "route";
-    let locations = {"locations": [], "costing": "bicycle", "directions_options": {"units": "miles"}};
+    let locations = {
+        "locations": [],
+        "costing": "bicycle",
+        "costing_options": {"bicycle": {"bicycle_type": bikeType}},
+        "directions_options": {"units": "miles"}
+    };
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][1], "lon": data[i][0]};
     }
