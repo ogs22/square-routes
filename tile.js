@@ -186,6 +186,7 @@ function buildURLopto(data) {
         "lat": data[0][0].edges[0].correlated_lat,
         "lon": data[0][0].edges[0].correlated_lon
     }
+    setMap(data[0][0].edges[0].correlated_lat,data[0][0].edges[0].correlated_lon)
     return VHServer + '/' + type + '?json=' + JSON.stringify(locations);
 }
 
@@ -302,6 +303,7 @@ function initApp() {
 
     let gpxstring = pointstoGPX(points);
     //weird fake download thing...
+    displayGPXonMap(gpxstring);
     download(gpxtitle + ".gpx", gpxstring);
 }
 
@@ -309,4 +311,18 @@ function statusUpdate(msg){
     var d1 = document.getElementById('status');
     d1.insertAdjacentHTML('beforeend', msg+'<br>');
     d1.scrollTop = d1.scrollHeight;
+}
+
+function setMap(lat,lon) {
+    map.setView([lat, lon], 10);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+}
+
+function displayGPXonMap(gpx) {
+    new L.GPX(gpx, {async: true}).on('loaded', function(e) {
+        map.fitBounds(e.target.getBounds());
+    }).addTo(map);
 }

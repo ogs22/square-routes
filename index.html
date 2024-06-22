@@ -4,6 +4,13 @@
 <head>
     <script src="tile.js"></script>
     <link crossorigin="anonymous" media="all" rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
     <meta charset="UTF-8">
     <title>Squars</title>
 </head>
@@ -33,7 +40,9 @@
     <label for="sub"></label>
     <input type="submit" id="sub">
 </form>
+<div id="map"></div>
 <div id="status"></div>
+
 <script>
     //setup default variables
     let gridsizex = 10;// 8x8 squares
@@ -50,6 +59,7 @@
 
     const button = document.querySelector("#sub");
     statusUpdate("Ready to build route");
+    map = L.map('map');
     button.addEventListener("click",
         function (event) {
             event.preventDefault();

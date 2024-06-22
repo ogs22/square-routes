@@ -22,4 +22,11 @@ label {
     overflow: scroll;
     border: 1px solid black;
     margin-left: 50px;
+    float:left;
+}
+#map {
+    float: left;
+    min-height: 600px;
+    width: 600px;
+    border: 1px solid black;
 }
