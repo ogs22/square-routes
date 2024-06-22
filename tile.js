@@ -191,6 +191,7 @@ function buildURLopto(data) {
 }
 
 function buildURLstandard(data) {
+    console.log("getting route "+data.length+" points long");
     let type = "route";
     let locations = {
         "locations": [],
@@ -324,5 +325,7 @@ function setMap(lat,lon) {
 function displayGPXonMap(gpx) {
     new L.GPX(gpx, {async: true}).on('loaded', function(e) {
         map.fitBounds(e.target.getBounds());
+        distance = Math.round(e.target.get_distance()/1000);
+        statusUpdate("Route is "+distance+"km long");
     }).addTo(map);
 }
