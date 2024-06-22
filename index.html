@@ -33,7 +33,7 @@
     <label for="sub"></label>
     <input type="submit" id="sub">
 </form>
-
+<div id="status"></div>
 <script>
     //setup default variables
     let gridsizex = 10;// 8x8 squares
@@ -49,7 +49,7 @@
     let gpxtitle = "Test Ride";
 
     const button = document.querySelector("#sub");
-
+    statusUpdate("Ready to build route");
     button.addEventListener("click",
         function (event) {
             event.preventDefault();

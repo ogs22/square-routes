@@ -15,3 +15,11 @@ form {
 label {
     text-align: right;
 }
+
+#status {
+    width:300px;
+    max-height: 300px;
+    overflow: scroll;
+    border: 1px solid black;
+    margin-left: 50px;
+}

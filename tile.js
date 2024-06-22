@@ -26,16 +26,24 @@ function locate(long, lat, x, y) {
         };
 
     let url = VHServer + '/locate?json=' + JSON.stringify(query);
+    console.log(url);
+    statusUpdate("Locating square:"+x+","+y);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             // Typical action to be performed when the document is ready:
-            let count = data.length;
-            data[count] = JSON.parse(xhttp.responseText);
-            data[count].sqrx = x;
-            data[count].sqry = y;
-
+            result = JSON.parse(xhttp.responseText);
+            console.log(result[0].edges);
+            if (result[0].edges == null) {
+                statusUpdate("Failed to locate....")
+            } else {
+                let count = data.length;
+                data[count] = result;
+                data[count].sqrx = x;
+                data[count].sqry = y;
+            }
         }
+
     };
     xhttp.open("GET", url, false);
     xhttp.send();
@@ -149,6 +157,7 @@ function pointstoGPX(points) {
 }
 
 function download(filename, text) {
+    statusUpdate("Downloading GPX file");
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
@@ -159,6 +168,10 @@ function download(filename, text) {
 }
 
 function buildURLopto(data) {
+    if (data.length == 0) {
+        statusUpdate("Error no points found to route");
+        exit (1);
+    }
     let type = "optimized_route";
     let locations = {
         "locations": [],
@@ -290,4 +303,10 @@ function initApp() {
     let gpxstring = pointstoGPX(points);
     //weird fake download thing...
     download(gpxtitle + ".gpx", gpxstring);
+}
+
+function statusUpdate(msg){
+    var d1 = document.getElementById('status');
+    d1.insertAdjacentHTML('beforeend', msg+'<br>');
+    d1.scrollTop = d1.scrollHeight;
 }
