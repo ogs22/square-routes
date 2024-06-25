@@ -53,7 +53,7 @@
       "turn_penalty_factor": 200
     },
     "bicycle": {
-      "turn_penalty_factor": 140
+      "turn_penalty_factor": 0
     },
     "customizable": [
       "mode",
@@ -123,7 +123,7 @@
     "include_bicycle": true,
     "include_construction": false,
     "include_driveways": true,
-    "include_driving": true,
+    "include_driving": false,
     "include_pedestrian": true,
     "include_platforms": false,
     "logging": {
@@ -168,10 +168,10 @@
       "max_matrix_location_pairs": 2500
     },
     "bicycle": {
-      "max_distance": 500000,
-      "max_locations": 450,
+      "max_distance": 700000,
+      "max_locations": 3600,
       "max_matrix_distance": 200000,
-      "max_matrix_location_pairs": 40000
+      "max_matrix_location_pairs": 80000
     },
     "bikeshare": {
       "max_distance": 500000,
