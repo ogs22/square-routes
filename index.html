@@ -16,12 +16,13 @@
 </head>
 <body>
 <form>
-    <label for="StartCorner">Choose starting corner</label>
+    <label for="StartCorner">Choose starting corner/point</label>
     <select name="StartCorner" id="StartCorner">
         <option value="tl">Top Left</option>
         <option value="tr">Top Right</option>
         <option value="bl">Bottom Left</option>
         <option value="br">Bottom right</option>
+        <option value="central">Central</option>
     </select>
     <label for="bikeType">Bike type</label>
     <select name="bikeType" id="bikeType">
@@ -30,9 +31,9 @@
         <option  value="mtb">Mountain bike</option>
     </select>
     <label for="startx">Choose starting X value</label>
-    <input type="text" id="startx" value="8223">
+    <input type="text" id="startx" value="8239">
     <label for="starty">Choose starting Y value</label>
-    <input type="text" id="starty" value="5409">
+    <input type="text" id="starty" value="5389">
     <label for="gridsizex">Choose grid width</label>
     <input type="text" id="gridsizex" value="8">
     <label for="gridsizey">Choose grid height</label>
@@ -49,8 +50,8 @@
     let gridsizey = 10;// 8x8 squares
     let offset = 0.5; // find initial points at 0.5/centre of square
     let zoom = 14;// square size
-    let startx = 8223;
-    let starty = 5409;
+    let startx = 8239;
+    let starty = 5389;
     let data = [];
     let VHServer = "http://localhost:8002";
     let StartCorner = "tl";

@@ -26,16 +26,15 @@ function locate(long, lat, x, y) {
         };
 
     let url = VHServer + '/locate?json=' + JSON.stringify(query);
-    console.log(url);
-    statusUpdate("Locating square:"+x+","+y);
+    //console.log(url);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             // Typical action to be performed when the document is ready:
             result = JSON.parse(xhttp.responseText);
-            console.log(result[0].edges);
+            //console.log(result[0].edges);
             if (result[0].edges == null) {
-                statusUpdate("Failed to locate....")
+                statusUpdate("Failed to locates quare:" + x + "," + y)
             } else {
                 let count = data.length;
                 data[count] = result;
@@ -63,18 +62,18 @@ function getCrossoverPoints(polyline) {
         if (last == "0::0") {
             //setup the first before point as the initial start....
             last = x + "::" + y;
-            before = [points[i][1], points[i][0], x, y];
+            before = [points[i][1], points[i][0]];
         }
         if (last != x + "::" + y) {
             last = x + "::" + y; //set this as last seen square
             //record the point we crossed
-            after = [points[i][1], points[i][0], x, y];
+            after = [points[i][1], points[i][0]];
             crossings[num] = before;
             num++;
             crossings[num] = after;
             num++;
         }
-        before = [points[i][1], points[i][0], x, y];
+        before = [points[i][1], points[i][0]];
     }
     return crossings;
 }
@@ -170,7 +169,7 @@ function download(filename, text) {
 function buildURLopto(data) {
     if (data.length == 0) {
         statusUpdate("Error no points found to route");
-        exit (1);
+        exit(1);
     }
     let type = "optimized_route";
     let locations = {
@@ -186,12 +185,12 @@ function buildURLopto(data) {
         "lat": data[0][0].edges[0].correlated_lat,
         "lon": data[0][0].edges[0].correlated_lon
     }
-    setMap(data[0][0].edges[0].correlated_lat,data[0][0].edges[0].correlated_lon)
+    setMap(data[0][0].edges[0].correlated_lat, data[0][0].edges[0].correlated_lon)
     return VHServer + '/' + type + '?json=' + JSON.stringify(locations);
 }
 
 function buildURLstandard(data) {
-    console.log("getting route "+data.length+" points long");
+    console.log("getting route " + data.length + " points long");
     let type = "route";
     let locations = {
         "locations": [],
@@ -244,11 +243,30 @@ function initApp() {
         comsignx = ">"
         comsigny = ">"
     }
-    for (let x = 0; compare(x, gridsizex, comsignx); x = x + xinc) {
-        for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
-            let thislong = tile2long(startx + x + offset, zoom);
-            let thislat = tile2lat(starty + y + offset, zoom);
-            locate(thislong, thislat, startx + x, starty + y);
+    if (StartCorner != "central") {
+        for (let x = 0; compare(x, gridsizex, comsignx); x = x + xinc) {
+            for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
+                let thislong = tile2long(startx + x + offset, zoom);
+                let thislat = tile2lat(starty + y + offset, zoom);
+                locate(thislong, thislat, startx + x, starty + y);
+            }
+        }
+    } else {
+        let cenx = Math.floor(gridsizex / 2);
+        let ceny = Math.floor(gridsizey / 2);
+        let thislong = tile2long(startx + offset, zoom);
+        let thislat = tile2lat(starty + offset, zoom);
+        locate(thislong, thislat, startx + cenx, starty + ceny);
+        for (let x = -cenx; compare(x, cenx, comsignx); x = x + xinc) {
+            for (let y = -ceny; compare(y, ceny, comsigny); y = y + yinc) {
+                if (x == 0 && y == 0) {
+                    console.log("Dont redo start");
+                } else {
+                    let thislong = tile2long(startx + x + offset, zoom);
+                    let thislat = tile2lat(starty + y + offset, zoom);
+                    locate(thislong, thislat, startx + x, starty + y);
+                }
+            }
         }
     }
 
@@ -277,11 +295,12 @@ function initApp() {
             crossings[crossings.length++] = cop[k];
         }
     }
-
+//
+    uniqCrossings = [...new Set(crossings)];
     // build a URL for a stadard roiute between all the crossing points
     // if you do an opto it will reroute and miss squares!
-    let newurl = buildURLstandard(crossings);
-    console.log(newurl);
+    let newurl = buildURLstandard(uniqCrossings);
+    //console.log(newurl);
 
     let newdata = [];
     var xhttp = new XMLHttpRequest();
@@ -308,13 +327,13 @@ function initApp() {
     download(gpxtitle + ".gpx", gpxstring);
 }
 
-function statusUpdate(msg){
+function statusUpdate(msg) {
     var d1 = document.getElementById('status');
-    d1.insertAdjacentHTML('beforeend', msg+'<br>');
+    d1.insertAdjacentHTML('beforeend', msg + '<br>');
     d1.scrollTop = d1.scrollHeight;
 }
 
-function setMap(lat,lon) {
+function setMap(lat, lon) {
     map.setView([lat, lon], 10);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -323,9 +342,11 @@ function setMap(lat,lon) {
 }
 
 function displayGPXonMap(gpx) {
-    new L.GPX(gpx, {async: true}).on('loaded', function(e) {
+    new L.GPX(gpx, {async: true}).on('loaded', function (e) {
         map.fitBounds(e.target.getBounds());
-        distance = Math.round(e.target.get_distance()/1000);
-        statusUpdate("Route is "+distance+"km long");
+        distance = Math.round(e.target.get_distance() / 1000);
+        kmpersqr = Math.round((e.target.get_distance() / 10) / (gridsizey * gridsizex)) / 100;
+        statusUpdate("Route is " + distance + "km long");
+        statusUpdate(kmpersqr + "km per square");
     }).addTo(map);
 }
