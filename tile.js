@@ -1,45 +1,79 @@
-function long2tile(lon, zoom) {
-    return (Math.floor((lon + 180) / 360 * Math.pow(2, zoom)));
-}
 
-function lat2tile(lat, zoom) {
-    return (Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)));
-}
+/**
+ * returns the y value of a Square
+ * @param {*} lon Longitude
+ * @param {*} zoom tile zoom normal 14
+ * @returns {number}
+ */
+const long2tile = (lon, zoom =14) => {
+  return Math.floor(((lon + 180) / 360) * (2 ** zoom));
+};
 
-function tile2long(x, z) {
-    return (x / Math.pow(2, z) * 360 - 180);
-}
+/**
+ * returns the x value of a square
+ * @param {*} lat Latitude
+ * @param {*} zoom 
+ * @returns {number}
+ */
+const lat2tile = (lat, zoom =14) => {
+  const latRad = lat * Math.PI / 180; // Convert latitude to radians
+  const sinLat = Math.sin(latRad);
+  const tanLat = Math.tan(latRad);
 
-function tile2lat(y, z) {
-    var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
-    return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
-}
+  // The core Mercator projection formula
+  const mercatorN = Math.log(tanLat + (1 / Math.cos(latRad))) / Math.PI;
+  const tileY = (1 - mercatorN) / 2 * (2 ** zoom);
+  return Math.floor(tileY);
+};
 
-function locate(long, lat, x, y) {
+/**
+ * returns the Latitude of Square X
+ * @param {*} x 
+ * @param {*} z tile zoom normal 14
+ * @returns {number}
+ */
+const tile2long = (x, z = 14) => {
+  return (x / (2 ** z) * 360 - 180);
+};
+
+/**
+ * returns Longtitude of Square Y
+ * @param {*} y 
+ * @param {*} z tile zoom normal 14
+ * @returns {number}
+ */
+const tile2lat = (y, z = 14) => {
+  // Calculate 'n' based on the inverse Mercator projection formula
+  const n = Math.PI - (2 * Math.PI * y) / (2 ** z);
+  const latitudeRadians = Math.atan(Math.sinh(n)); // Or Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  // Convert radians to degrees
+  return (180 / Math.PI) * latitudeRadians;
+};
+
+const locate = (long, lat, x, y, data, callback) => {
     let query =
         {
             "verbose": false,
-            "locations": [{"lat": lat, "lon": long}],
+            "locations": [{"lat": lat, "lon": long,"rank_candidates":"false"}],
             "costing": "bicycle",
             "costing_options": {"bicycle": {"bicycle_type": bikeType}},
             "directions_options": {"units": "miles"}
         };
 
     let url = VHServer + '/locate?json=' + JSON.stringify(query);
-    //console.log(url);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            // Typical action to be performed when the document is ready:
             result = JSON.parse(xhttp.responseText);
-            //console.log(result[0].edges);
             if (result[0].edges == null) {
-                statusUpdate("Failed to locates quare:" + x + "," + y)
+                statusUpdate("Failed to locate square:" + x + "," + y)
+                callback(new Error("Failed to locate square:"+ x + "," + y),null);
             } else {
                 let count = data.length;
                 data[count] = result;
                 data[count].sqrx = x;
                 data[count].sqry = y;
+                callback(null,data);
             }
         }
 
@@ -48,7 +82,7 @@ function locate(long, lat, x, y) {
     xhttp.send();
 }
 
-function getCrossoverPoints(polyline) {
+const getCrossoverPoints = (polyline) => {
     let points = plinedecode(polyline);
     let last = "0::0";
     let before = [0, 0];
@@ -80,7 +114,7 @@ function getCrossoverPoints(polyline) {
 
 // This is adapted from the implementation in Project-OSRM
 // https://github.com/DennisOSRM/Project-OSRM-Web/blob/master/WebContent/routing/OSRM.RoutingGeometry.js
-function plinedecode(str, precision) {
+const plinedecode = (str, precision = 6) => {
     var index = 0,
         lat = 0,
         lng = 0,
@@ -130,7 +164,7 @@ function plinedecode(str, precision) {
 }
 
 
-function pointstoGPX(points) {
+const pointstoGPX = (points) => {
     let gpxstring = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "   <gpx creator=\"StravaGPX\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\" version=\"1.1\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n" +
         "    <metadata>\n" +
@@ -155,7 +189,7 @@ function pointstoGPX(points) {
     return gpxstring;
 }
 
-function download(filename, text) {
+const download = (filename, text) => {
     statusUpdate("Downloading GPX file");
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -166,7 +200,7 @@ function download(filename, text) {
     document.body.removeChild(element);
 }
 
-function buildURLopto(data) {
+const buildURLopto = (data) => {
     if (data.length == 0) {
         statusUpdate("Error no points found to route");
         exit(1);
@@ -176,7 +210,8 @@ function buildURLopto(data) {
         "locations": [],
         "costing": "bicycle",
         "costing_options": {"bicycle": {"bicycle_type": bikeType}},
-        "directions_options": {"units": "miles"}
+        "directions_options": {"units": "km"},
+        "directions_type":"none"
     };
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][0].edges[0].correlated_lat, "lon": data[i][0].edges[0].correlated_lon}
@@ -189,14 +224,15 @@ function buildURLopto(data) {
     return VHServer + '/' + type + '?json=' + JSON.stringify(locations);
 }
 
-function buildURLstandard(data) {
+const buildURLstandard = (data) => {
     console.log("getting route " + data.length + " points long");
-    let type = "route";
+    let type = "optimized_route";
     let locations = {
         "locations": [],
         "costing": "bicycle",
         "costing_options": {"bicycle": {"bicycle_type": bikeType}},
-        "directions_options": {"units": "miles"}
+        "directions_options": {"units": "km"},
+        "directions_type":"none"
     };
     for (let i = 0; i < data.length; i++) {
         locations.locations[i] = {"lat": data[i][1], "lon": data[i][0]};
@@ -204,7 +240,7 @@ function buildURLstandard(data) {
     return VHServer + '/route?json=' + JSON.stringify(locations);
 }
 
-function compare(loopvar, thevariable, comsign,) {
+const compare = (loopvar, thevariable, comsign,) => {
     if (comsign == "<") {
         return loopvar < thevariable;
     }
@@ -213,7 +249,7 @@ function compare(loopvar, thevariable, comsign,) {
     }
 }
 
-function initApp() {
+const initApp = () => {
     //for each square in sqr of sqrs
     // find lat and longtiude
     // use locate() to find closest rela point using valhalla locate
@@ -248,7 +284,15 @@ function initApp() {
             for (let y = 0; compare(y, gridsizey, comsigny); y = y + yinc) {
                 let thislong = tile2long(startx + x + offset, zoom);
                 let thislat = tile2lat(starty + y + offset, zoom);
-                locate(thislong, thislat, startx + x, starty + y);
+                locate(thislong, thislat, startx + x, starty + y, data, (error, data) => {
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        console.log('Received data:', data);
+                        data = data;
+                    }
+                }
+                );
             }
         }
     } else {
@@ -256,7 +300,15 @@ function initApp() {
         let ceny = Math.floor(gridsizey / 2);
         let thislong = tile2long(startx + offset, zoom);
         let thislat = tile2lat(starty + offset, zoom);
-        locate(thislong, thislat, startx + cenx, starty + ceny);
+        locate(thislong, thislat, startx + cenx, starty + ceny,data, (error, data) => {
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        console.log('Received data:', data);
+                        data = data;
+                    }
+                }
+                );
         for (let x = -cenx; compare(x, cenx, comsignx); x = x + xinc) {
             for (let y = -ceny; compare(y, ceny, comsigny); y = y + yinc) {
                 if (x == 0 && y == 0) {
@@ -264,7 +316,15 @@ function initApp() {
                 } else {
                     let thislong = tile2long(startx + x + offset, zoom);
                     let thislat = tile2lat(starty + y + offset, zoom);
-                    locate(thislong, thislat, startx + x, starty + y);
+                    locate(thislong, thislat, startx + x, starty + y,data, (error, data) => {
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        console.log('Received data:', data);
+                        data = data;
+                    }
+                }
+                );
                 }
             }
         }
@@ -273,7 +333,6 @@ function initApp() {
     // build a optimized route URL query
     // then query VH and put reply in data var (erk rename)
     let url = buildURLopto(data); //using data var built in locate()
-
     let optodata = []; //unset data
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -286,6 +345,7 @@ function initApp() {
 
     //console.log(data);
     //loop through each part of journey and record the points before an after crossing a square edge
+    console.log(optodata)
     let legs = optodata.trip.legs;
     let cop = [];
     let crossings = [];
@@ -297,11 +357,12 @@ function initApp() {
     }
 //
     uniqCrossings = [...new Set(crossings)];
-    // build a URL for a stadard roiute between all the crossing points
+    
+    minset = getMinimumPoints(uniqCrossings);
+    // build a URL for a standard route between all the crossing points
     // if you do an opto it will reroute and miss squares!
-    let newurl = buildURLstandard(uniqCrossings);
-    //console.log(newurl);
-
+    //let newurl = buildURLstandard(uniqCrossings);
+    let newurl = buildURLstandard(minset);
     let newdata = [];
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -315,7 +376,6 @@ function initApp() {
     //get all the points from the reuslt and build a gpx file
     let points = [];
     let newlegs = newdata.trip.legs;
-    let ss = [];
     for (let j = 0; j < newlegs.length; j++) {
         let pline = plinedecode(newlegs[j].shape);
         points = points.concat(pline);
@@ -327,13 +387,39 @@ function initApp() {
     download(gpxtitle + ".gpx", gpxstring);
 }
 
-function statusUpdate(msg) {
+const getMinimumPoints = (points) => {
+    let minimumPoints = [];
+    let seenSquares = [];
+    for (let i = 0; i < points.length; i++) {
+        var ll = points[i];
+        let long = ll[0];
+        let lat = ll[1];
+        let x = long2tile(long);
+        let y = lat2tile(lat);
+        let mung = x + "::"+ y;
+        console.log("Checking for "+mung);
+        if( seenSquares[mung] !==undefined && seenSquares[mung] === true ) {
+            //ignore this item
+            console.log("seen it");
+        } else {
+            console.log("havent seen it");
+            minimumPoints[minimumPoints.length++] = ll;
+            seenSquares[mung] = true;
+        }
+    }
+    //add in the finish
+    minimumPoints[minimumPoints.length++] = ll;
+    console.log(minimumPoints);
+    return minimumPoints;
+}
+
+const statusUpdate = (msg) => {
     var d1 = document.getElementById('status');
     d1.insertAdjacentHTML('beforeend', msg + '<br>');
     d1.scrollTop = d1.scrollHeight;
 }
 
-function setMap(lat, lon) {
+const setMap = (lat, lon) => {
     map.setView([lat, lon], 10);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -341,8 +427,10 @@ function setMap(lat, lon) {
     }).addTo(map);
 }
 
-function displayGPXonMap(gpx) {
-    new L.GPX(gpx, {async: true}).on('loaded', function (e) {
+const displayGPXonMap = (gpx) => {
+    new L.GPX(gpx, {
+        async: true
+    }).on('loaded', function (e) {
         map.fitBounds(e.target.getBounds());
         distance = Math.round(e.target.get_distance() / 1000);
         kmpersqr = Math.round((e.target.get_distance() / 10) / (gridsizey * gridsizex)) / 100;

@@ -22,18 +22,18 @@
         <option value="tr">Top Right</option>
         <option value="bl">Bottom Left</option>
         <option value="br">Bottom right</option>
-        <option value="central">Central</option>
+        <option value="central" selected>Central</option>
     </select>
     <label for="bikeType">Bike type</label>
     <select name="bikeType" id="bikeType">
         <option value="road">Road bike</option>
-        <option value="cross">Cross/Gravel bike</option>
+        <option value="cross" selected>Cross/Gravel bike</option>
         <option  value="mtb">Mountain bike</option>
     </select>
     <label for="startx">Choose starting X value</label>
-    <input type="text" id="startx" value="8239">
+    <input type="text" id="startx" value="8132">
     <label for="starty">Choose starting Y value</label>
-    <input type="text" id="starty" value="5389">
+    <input type="text" id="starty" value="5398">
     <label for="gridsizex">Choose grid width</label>
     <input type="text" id="gridsizex" value="8">
     <label for="gridsizey">Choose grid height</label>
@@ -46,14 +46,15 @@
 
 <script>
     //setup default variables
-    let gridsizex = 10;// 8x8 squares
-    let gridsizey = 10;// 8x8 squares
+    let gridsizex = 8;// 8x8 squares
+    let gridsizey = 8;// 8x8 squares
     let offset = 0.5; // find initial points at 0.5/centre of square
     let zoom = 14;// square size
-    let startx = 8239;
-    let starty = 5389;
+    let startx = 8132;
+    let starty = 5398;
     let data = [];
-    let VHServer = "http://localhost:8002";
+    let VHServer = "http://192.168.50.227:8002";
+    //let VHServer = "http://127.0.0.1:8002";
     let StartCorner = "tl";
     let bikeType = "cross";//road cross or mtb
     let gpxtitle = "Test Ride";
