@@ -38,8 +38,8 @@
 (decodes polylines https://developers.google.com/maps/documentation/utilities/polylinealgorithm?_gl=1*1bpw0oe*_up*MQ..*_ga*MTUyMTI5MjY0Ny4xNzUwMTU0MDM0*_ga_NRWSTWS78N*czE3NTAxNTQwMzMkbzEkZzEkdDE3NTAxNTQwMzUkajU4JGwwJGgw )
 - plinedecode 
 
-![website](screenshot.png)
-![squares](squaresExample.png)
+![website](media/screenshot.png)
+![squares](media/squaresExample.png)
 
 
 
